@@ -4,16 +4,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sqlite3.h>
 
 using namespace std;
-
-// Forward declaration untuk PostgreSQL
-struct pg_conn;
-typedef struct pg_conn PGconn;
-
-// =====================================
-// Data Structure
-// =====================================
 
 struct Menu {
     string nama;
@@ -36,31 +29,17 @@ struct Item {
     Item* next;
 };
 
-// =====================================
-// Database Functions
-// =====================================
-
-bool connectDatabase(
-    const string& host,
-    const string& user,
-    const string& password,
-    const string& dbname,
-    int port = 5432
-);
-
+bool connectDatabase(const string& dbPath = "kasir.db");
 bool disconnectDatabase();
 bool isConnected();
-PGconn* getConnection();
+sqlite3* getConnection();
+bool initializeDatabase();
 
 bool simpanMenuDatabase(const Menu& data);
 vector<Menu> ambilSemuaMenu(); 
 bool updateMenuDatabase(const Menu& data);
 bool hapusMenuDatabase(const string& nama);
 bool cekUserLogin(const string& username, const string& password);
-
-// =====================================
-// Binary Search Tree Functions
-// =====================================
 
 Node* buatNode(const Menu& data);
 
@@ -82,10 +61,6 @@ Node* cariMenuTerkecil(Node* root);
 bool updateStokMenu(Node* root, const string& nama, int stokBaru);
 void hapusSemuaNode(Node* root);
 
-// =====================================
-// Shopping Cart Functions
-// =====================================
-
 void tambahKeKeranjang(
     Item*& keranjang, 
     const string& namaMenu, 
@@ -98,9 +73,9 @@ int hitungTotalBayar(Item* keranjang);
 void cetakStruk(Item* keranjang, int totalBayar);
 void bersihkanKeranjang(Item*& keranjang);
 
-// =====================================
-// Auth & UI Functions
-// =====================================
+void menuUtama();
+void menuAdmin(Node*& root);
+void menuKasir(Node* root);
 
 bool login();
 void clearScreen();

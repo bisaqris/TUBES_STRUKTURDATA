@@ -1,46 +1,30 @@
 #include "kasir.h"
-#include <libpq-fe.h>
 #include <iostream>
+#include <sqlite3.h>
 
 using namespace std;
 
-// Global connection variable
-static PGconn* conn = nullptr;
+static sqlite3* db = nullptr;
 
-PGconn* getConnection() {
-    return conn;
-}
-
-bool connectDatabase(
-    const string& host,
-    const string& user,
-    const string& password,
-    const string& dbname,
-    int port
-) {
-    string connInfo = "host=" + host + 
-                      " port=" + to_string(port) +
-                      " user=" + user + 
-                      " password=" + password + 
-                      " dbname=" + dbname;
+bool connectDatabase(const string& dbPath) {
+    int rc = sqlite3_open(dbPath.c_str(), &db);
     
-    conn = PQconnectdb(connInfo.c_str());
-    
-    if (PQstatus(conn) != CONNECTION_OK) {
-        cerr << "Koneksi database gagal: " << PQerrorMessage(conn) << endl;
-        PQfinish(conn);
-        conn = nullptr;
+    if (rc != SQLITE_OK) {
+        cerr << "Error: Tidak dapat membuka database: " << sqlite3_errmsg(db) << endl;
+        sqlite3_close(db);
+        db = nullptr;
         return false;
     }
     
     cout << "Koneksi database berhasil!" << endl;
-    return true;
+    
+    return initializeDatabase();
 }
 
 bool disconnectDatabase() {
-    if (conn != nullptr) {
-        PQfinish(conn);
-        conn = nullptr;
+    if (db != nullptr) {
+        sqlite3_close(db);
+        db = nullptr;
         cout << "Database terputus." << endl;
         return true;
     }
@@ -48,30 +32,115 @@ bool disconnectDatabase() {
 }
 
 bool isConnected() {
-    return (conn != nullptr && PQstatus(conn) == CONNECTION_OK);
+    return db != nullptr;
+}
+
+sqlite3* getConnection() {
+    return db;
+}
+
+bool initializeDatabase() {
+    if (!isConnected()) {
+        cerr << "Error: Tidak terhubung ke database" << endl;
+        return false;
+    }
+    
+    char* errMsg = nullptr;
+    
+    const char* sqlUsers = 
+        "CREATE TABLE IF NOT EXISTS users ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "username TEXT NOT NULL UNIQUE,"
+        "password TEXT NOT NULL,"
+        "role TEXT DEFAULT 'kasir',"
+        "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+        ");";
+    
+    int rc = sqlite3_exec(db, sqlUsers, nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "Error creating users table: " << errMsg << endl;
+        sqlite3_free(errMsg);
+        return false;
+    }
+    
+    const char* sqlMenu = 
+        "CREATE TABLE IF NOT EXISTS menu ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "nama TEXT NOT NULL UNIQUE,"
+        "kategori TEXT NOT NULL,"
+        "harga INTEGER NOT NULL,"
+        "stok INTEGER NOT NULL DEFAULT 0,"
+        "created_at DATETIME DEFAULT CURRENT_TIMESTAMP,"
+        "updated_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+        ");";
+    
+    rc = sqlite3_exec(db, sqlMenu, nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "Error creating menu table: " << errMsg << endl;
+        sqlite3_free(errMsg);
+        return false;
+    }
+    
+    const char* sqlInsertUsers = 
+        "INSERT OR IGNORE INTO users (username, password, role) VALUES "
+        "('kasir', 'kasir123', 'kasir');";
+    
+    rc = sqlite3_exec(db, sqlInsertUsers, nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "Error inserting default users: " << errMsg << endl;
+        sqlite3_free(errMsg);
+        return false;
+    }
+    
+    const char* sqlInsertMenu = 
+        "INSERT OR IGNORE INTO menu (nama, kategori, harga, stok) VALUES "
+        "('Nasi Goreng', 'Makanan', 15000, 50),"
+        "('Mie Goreng', 'Makanan', 12000, 30),"
+        "('Ayam Bakar', 'Makanan', 25000, 20),"
+        "('Soto Ayam', 'Makanan', 18000, 25),"
+        "('Teh Manis', 'Minuman', 5000, 100),"
+        "('Jeruk Peras', 'Minuman', 8000, 50),"
+        "('Es Teh', 'Minuman', 5000, 100),"
+        "('Kopi Hitam', 'Minuman', 7000, 75);";
+    
+    rc = sqlite3_exec(db, sqlInsertMenu, nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "Error inserting default menu: " << errMsg << endl;
+        sqlite3_free(errMsg);
+        return false;
+    }
+    
+    return true;
 }
 
 bool simpanMenuDatabase(const Menu& data) {
     if (!isConnected()) {
-        cerr << "Tidak terhubung ke database!" << endl;
+        cerr << "Error: Tidak terhubung ke database" << endl;
         return false;
     }
     
-    string query = "INSERT INTO menu (nama, kategori, harga, stok) VALUES ('" 
-                   + data.nama + "', '" 
-                   + data.kategori + "', " 
-                   + to_string(data.harga) + ", " 
-                   + to_string(data.stok) + ")";
+    sqlite3_stmt* stmt;
+    const char* sql = "INSERT INTO menu (nama, kategori, harga, stok) VALUES (?, ?, ?, ?);";
     
-    PGresult* res = PQexec(conn, query.c_str());
-    
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        cerr << "Error menyimpan menu: " << PQerrorMessage(conn) << endl;
-        PQclear(res);
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error preparing statement: " << sqlite3_errmsg(db) << endl;
         return false;
     }
     
-    PQclear(res);
+    sqlite3_bind_text(stmt, 1, data.nama.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, data.kategori.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, data.harga);
+    sqlite3_bind_int(stmt, 4, data.stok);
+    
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    
+    if (rc != SQLITE_DONE) {
+        cerr << "Error: Gagal menyimpan menu: " << sqlite3_errmsg(db) << endl;
+        return false;
+    }
+    
     return true;
 }
 
@@ -79,95 +148,112 @@ vector<Menu> ambilSemuaMenu() {
     vector<Menu> daftarMenu;
     
     if (!isConnected()) {
-        cerr << "Tidak terhubung ke database!" << endl;
+        cerr << "Error: Tidak terhubung ke database" << endl;
         return daftarMenu;
     }
     
-    string query = "SELECT nama, kategori, harga, stok FROM menu";
-    PGresult* res = PQexec(conn, query.c_str());
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT nama, kategori, harga, stok FROM menu;";
     
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        cerr << "Error mengambil menu: " << PQerrorMessage(conn) << endl;
-        PQclear(res);
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error preparing statement: " << sqlite3_errmsg(db) << endl;
         return daftarMenu;
     }
     
-    int rows = PQntuples(res);
-    for (int i = 0; i < rows; i++) {
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
         Menu m;
-        m.nama = PQgetvalue(res, i, 0);
-        m.kategori = PQgetvalue(res, i, 1);
-        m.harga = atoi(PQgetvalue(res, i, 2));
-        m.stok = atoi(PQgetvalue(res, i, 3));
+        m.nama = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        m.kategori = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        m.harga = sqlite3_column_int(stmt, 2);
+        m.stok = sqlite3_column_int(stmt, 3);
         daftarMenu.push_back(m);
     }
     
-    PQclear(res);
+    sqlite3_finalize(stmt);
     return daftarMenu;
 }
 
 bool updateMenuDatabase(const Menu& data) {
     if (!isConnected()) {
-        cerr << "Tidak terhubung ke database!" << endl;
+        cerr << "Error: Tidak terhubung ke database" << endl;
         return false;
     }
     
-    string query = "UPDATE menu SET kategori='" + data.kategori + 
-                   "', harga=" + to_string(data.harga) + 
-                   ", stok=" + to_string(data.stok) + 
-                   " WHERE nama='" + data.nama + "'";
+    sqlite3_stmt* stmt;
+    const char* sql = "UPDATE menu SET kategori=?, harga=?, stok=?, updated_at=CURRENT_TIMESTAMP WHERE nama=?;";
     
-    PGresult* res = PQexec(conn, query.c_str());
-    
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        cerr << "Error update menu: " << PQerrorMessage(conn) << endl;
-        PQclear(res);
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error preparing statement: " << sqlite3_errmsg(db) << endl;
         return false;
     }
     
-    PQclear(res);
-    return true;
+    sqlite3_bind_text(stmt, 1, data.kategori.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 2, data.harga);
+    sqlite3_bind_int(stmt, 3, data.stok);
+    sqlite3_bind_text(stmt, 4, data.nama.c_str(), -1, SQLITE_TRANSIENT);
+    
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    
+    if (rc != SQLITE_DONE) {
+        cerr << "Error: Gagal update menu: " << sqlite3_errmsg(db) << endl;
+        return false;
+    }
+    
+    return sqlite3_changes(db) > 0;
 }
 
 bool hapusMenuDatabase(const string& nama) {
     if (!isConnected()) {
-        cerr << "Tidak terhubung ke database!" << endl;
+        cerr << "Error: Tidak terhubung ke database" << endl;
         return false;
     }
     
-    string query = "DELETE FROM menu WHERE nama='" + nama + "'";
+    sqlite3_stmt* stmt;
+    const char* sql = "DELETE FROM menu WHERE nama=?;";
     
-    PGresult* res = PQexec(conn, query.c_str());
-    
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        cerr << "Error hapus menu: " << PQerrorMessage(conn) << endl;
-        PQclear(res);
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error preparing statement: " << sqlite3_errmsg(db) << endl;
         return false;
     }
     
-    PQclear(res);
-    return true;
+    sqlite3_bind_text(stmt, 1, nama.c_str(), -1, SQLITE_TRANSIENT);
+    
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    
+    if (rc != SQLITE_DONE) {
+        cerr << "Error: Gagal hapus menu: " << sqlite3_errmsg(db) << endl;
+        return false;
+    }
+    
+    return sqlite3_changes(db) > 0;
 }
 
 bool cekUserLogin(const string& username, const string& password) {
     if (!isConnected()) {
-        cerr << "Tidak terhubung ke database!" << endl;
+        cerr << "Error: Tidak terhubung ke database" << endl;
         return false;
     }
     
-    string query = "SELECT * FROM users WHERE username='" + username + 
-                   "' AND password='" + password + "'";
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT * FROM users WHERE username=? AND password=?;";
     
-    PGresult* res = PQexec(conn, query.c_str());
-    
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        cerr << "Error login: " << PQerrorMessage(conn) << endl;
-        PQclear(res);
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Error preparing statement: " << sqlite3_errmsg(db) << endl;
         return false;
     }
     
-    bool isValid = (PQntuples(res) > 0);
-    PQclear(res);
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
     
-    return isValid;
+    rc = sqlite3_step(stmt);
+    bool found = (rc == SQLITE_ROW);
+    
+    sqlite3_finalize(stmt);
+    return found;
 }
