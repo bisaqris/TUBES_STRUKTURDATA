@@ -9,6 +9,10 @@ int main() {
         cerr << "Gagal terhubung ke database. Program dihentikan." << endl;
         return 1;
     }
+     if (!login()) {
+        disconnectDatabase();
+        return 1;
+    }
     disconnectDatabase();
     return 0;
 }
