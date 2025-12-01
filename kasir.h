@@ -68,6 +68,7 @@ void tambahKeKeranjang(
     int hargaSatuan
 );
 
+void tambahKeKeranjang(Item*& keranjang, const string& namaMenu, int jumlah, int hargaSatuan);
 void tampilkanKeranjang(Item* keranjang);
 int hitungTotalBayar(Item* keranjang);
 void cetakStruk(Item* keranjang, int totalBayar);
