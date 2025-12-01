@@ -36,7 +36,7 @@ void tambahKeranjang(Item *&keranjang, const string &namaMenu, int jumlah, int h
     }
 }
 
-void tampilkanKeranjang(const Item *keranjang)
+void tampilkanKeranjang(Item *keranjang)
 {
     if (keranjang == nullptr)
     {
