@@ -100,7 +100,7 @@ void menuKasir(Node *root)
 
                     if (jumlah <= menu->data.stok)
                     {
-                        tambahKeKeranjang(keranjang, nama, jumlah, menu->data.harga);
+                        tambahKeranjang(keranjang, nama, jumlah, menu->data.harga);
                         menu->data.stok -= jumlah;
                         cout << "Item berhasil ditambahkan ke keranjang!" << endl;
                     }
