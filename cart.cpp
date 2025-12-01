@@ -3,36 +3,29 @@
 #include <iomanip>
 using namespace std;
 
-void tambahKeranjang(Item *&keranjang, const string &namaMenu, int jumlah, int hargaSatuan)
-{
-    Item *ItemBaru = new Item;
-    ItemBaru->nama = namaMenu;
-    ItemBaru->jumlah = jumlah;
-    ItemBaru->hargaSatuan = hargaSatuan;
-    ItemBaru->totalHarga = jumlah * hargaSatuan;
-    ItemBaru->next = nullptr;
-
-    if (keranjang == nullptr)
-    {
-        keranjang = ItemBaru;
-    }
-    else
-    {
-        Item *temp = keranjang;
-        while (temp != nullptr)
-        {
-            if (temp->nama == namaMenu)
-            {
+void tambahKeKeranjang(Item*& keranjang, const string& namaMenu, int jumlah, int hargaSatuan) {
+    Item* itemBaru = new Item;
+    itemBaru->nama = namaMenu;
+    itemBaru->jumlah = jumlah;
+    itemBaru->hargaSatuan = hargaSatuan;
+    itemBaru->totalHarga = jumlah * hargaSatuan;
+    itemBaru->next = nullptr;
+    
+    if (keranjang == nullptr) {
+        keranjang = itemBaru;
+    } else {
+        Item* temp = keranjang;
+        while (temp != nullptr) {
+            if (temp->nama == namaMenu) {
                 temp->jumlah += jumlah;
-                temp->totalHarga += temp->jumlah * temp->hargaSatuan;
-                delete ItemBaru;
+                temp->totalHarga = temp->jumlah * temp->hargaSatuan;
+                delete itemBaru;
                 return;
             }
-            if (temp->next == nullptr)
-                break;
+            if (temp->next == nullptr) break;
             temp = temp->next;
         }
-        temp->next = ItemBaru;
+        temp->next = itemBaru;
     }
 }
 
