@@ -15,7 +15,7 @@ void menuUtama() {
     int pilihan;
     
     do {
-        systemclear();
+        clearScreen();
         cout << "\n========================================" << endl;
         cout << "        SISTEM KASIR RESTORAN" << endl;
         cout << "========================================" << endl;
@@ -277,8 +277,4 @@ void menuKasir(Node* root) {
     } while (pilihan != 0);
     
     bersihkanKeranjang(keranjang);
-}
-void systemclear()
-{
-    system("cls");
 }
