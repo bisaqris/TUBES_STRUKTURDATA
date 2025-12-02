@@ -1,0 +1,6 @@
+.gitignore .exe
+.gitignore .dll
+.gitignore .log
+.gitignore .tmp
+.gitignore .vscode/
+.gitignore .db
