@@ -15,7 +15,6 @@ void menuUtama() {
     int pilihan;
     
     do {
-        clearScreen();
         cout << "\n========================================" << endl;
         cout << "        SISTEM KASIR RESTORAN" << endl;
         cout << "========================================" << endl;
@@ -49,7 +48,6 @@ void menuAdmin(Node*& root) {
     int pilihan;
     
     do {
-        clearScreen();
         cout << "\n========================================" << endl;
         cout << "           KELOLA MENU" << endl;
         cout << "========================================" << endl;
@@ -114,8 +112,7 @@ void menuAdmin(Node*& root) {
                     cout << "Stok: " << hasil->data.stok << endl;
                 } else {
                     cout << "Menu tidak ditemukan!" << endl;
-                }
-                pause();
+                }                
                 break;
             }
             case 4: {
@@ -146,7 +143,6 @@ void menuAdmin(Node*& root) {
                 } else {
                     cout << "Menu tidak ditemukan!" << endl;
                 }
-                pause();
                 break;
             }
             case 5: {
@@ -160,14 +156,12 @@ void menuAdmin(Node*& root) {
                 } else {
                     cout << "Gagal menghapus menu!" << endl;
                 }
-                pause();
                 break;
             }
             case 0:
                 break;
             default:
                 cout << "Pilihan tidak valid!" << endl;
-                pause();
         }
     } while (pilihan != 0);
 }
@@ -177,7 +171,6 @@ void menuKasir(Node* root) {
     int pilihan;
     
     do {
-        clearScreen();
         cout << "\n========================================" << endl;
         cout << "           KELOLA TRANSAKSI" << endl;
         cout << "========================================" << endl;
@@ -202,8 +195,7 @@ void menuKasir(Node* root) {
                      << setw(15) << "Harga"
                      << "Stok" << endl;
                 cout << "----------------------------------------" << endl;
-                tampilkanInOrder(root);
-                pause();
+                tampilkanInOrder(root);                
                 break;
             case 2: {
                 string nama;
@@ -232,13 +224,11 @@ void menuKasir(Node* root) {
                 } else {
                     cout << "Menu tidak ditemukan!" << endl;
                 }
-                pause();
                 break;
             }
             case 3:
                 tampilkanKeranjang(keranjang);
                 cout << "\nTotal: Rp " << hitungTotalBayar(keranjang) << endl;
-                pause();
                 break;
             case 4: {
                 if (keranjang == nullptr) {
@@ -270,7 +260,6 @@ void menuKasir(Node* root) {
                         cout << "Uang tidak cukup!" << endl;
                     }
                 }
-                pause();
                 break;
             }
             case 5:
@@ -285,7 +274,6 @@ void menuKasir(Node* root) {
                 }
                 bersihkanKeranjang(keranjang);
                 cout << "Transaksi dibatalkan!" << endl;
-                pause();
                 break;
         }
     } while (pilihan != 0);

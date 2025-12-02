@@ -58,7 +58,6 @@ bool login()
         if (cekUserLogin(username, password))
         {
             cout << "\nLogin berhasil! Selamat datang, " << username << "!" << endl;
-            pause();
             return true;
         }
 
@@ -73,16 +72,4 @@ bool login()
 
     cout << "\nTerlalu banyak percobaan gagal. Program akan ditutup." << endl;
     return false;
-}
-
-void clearScreen()
-{
-    system("cls");
-}
-
-void pause()
-{
-    cout << "\nTekan ENTER untuk melanjutkan...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
 }
