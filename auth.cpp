@@ -23,7 +23,7 @@ string inputPassword()
             if (!password.empty())
             {
                 password.pop_back();
-                cout << "\b \b"; 
+                cout << "\b \b";
             }
         }
         else if (ch >= 32 && ch <= 126)
@@ -41,7 +41,7 @@ bool login()
     string username, password;
     int percobaan = 0;
     const int MAX_PERCOBAAN = 3;
-    systemclear();
+    clearScreen();
     cout << "\n========================================" << endl;
     cout << "           SISTEM LOGIN KASIR" << endl;
     cout << "=======================================" << endl;
@@ -72,4 +72,8 @@ bool login()
 
     cout << "\nTerlalu banyak percobaan gagal. Program akan ditutup." << endl;
     return false;
+}
+void clearScreen()
+{
+    system("cls");
 }
