@@ -15,7 +15,7 @@ void menuUtama() {
     int pilihan;
     
     do {
-        systemclear()
+        systemclear();
         cout << "\n========================================" << endl;
         cout << "        SISTEM KASIR RESTORAN" << endl;
         cout << "========================================" << endl;
