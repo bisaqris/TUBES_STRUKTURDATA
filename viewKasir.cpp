@@ -37,7 +37,6 @@ void menuUtama() {
                 break;
             default:
                 cout << "Pilihan tidak valid!" << endl;
-                pause();
         }
     } while (pilihan != 0);
     
@@ -83,7 +82,6 @@ void menuAdmin(Node*& root) {
                 } else {
                     cout << "Gagal menambahkan menu!" << endl;
                 }
-                pause();
                 break;
             }
             case 2:
@@ -96,7 +94,6 @@ void menuAdmin(Node*& root) {
                      << "Stok" << endl;
                 cout << "----------------------------------------" << endl;
                 tampilkanInOrder(root);
-                pause();
                 break;
             case 3: {
                 string nama;
