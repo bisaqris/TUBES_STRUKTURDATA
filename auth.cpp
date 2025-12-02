@@ -41,7 +41,7 @@ bool login()
     string username, password;
     int percobaan = 0;
     const int MAX_PERCOBAAN = 3;
-
+    systemclear()
     cout << "\n========================================" << endl;
     cout << "           SISTEM LOGIN KASIR" << endl;
     cout << "=======================================" << endl;
