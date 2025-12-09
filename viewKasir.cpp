@@ -4,17 +4,20 @@
 
 using namespace std;
 
-void menuUtama() {
-    Node* root = nullptr;
+void menuUtama()
+{
+    Node *root = nullptr;
     vector<Menu> daftarMenu = ambilSemuaMenu();
-    
-    for (const auto& menu : daftarMenu) {
+
+    for (const auto &menu : daftarMenu)
+    {
         root = tambahMenu(root, menu.nama, menu.kategori, menu.harga, menu.stok);
     }
-    
+
     int pilihan;
-    
-    do {
+
+    do
+    {
         clearScreen();
         cout << "\n========================================" << endl;
         cout << "        SISTEM KASIR RESTORAN" << endl;
@@ -25,29 +28,32 @@ void menuUtama() {
         cout << "========================================" << endl;
         cout << "Pilih menu: ";
         cin >> pilihan;
-        
-        switch (pilihan) {
-            case 1:
-                menuAdmin(root);
-                break;
-            case 2:
-                menuKasir(root);
-                break;
-            case 0:
-                cout << "Terima kasih telah menggunakan sistem kasir!" << endl;
-                break;
-            default:
-                cout << "Pilihan tidak valid!" << endl;
+
+        switch (pilihan)
+        {
+        case 1:
+            menuAdmin(root);
+            break;
+        case 2:
+            menuKasir(root);
+            break;
+        case 0:
+            cout << "Terima kasih telah menggunakan sistem kasir!" << endl;
+            break;
+        default:
+            cout << "Pilihan tidak valid!" << endl;
         }
     } while (pilihan != 0);
-    
+
     hapusSemuaNode(root);
 }
 
-void menuAdmin(Node*& root) {
+void menuAdmin(Node *&root)
+{
     int pilihan;
-    
-    do {
+
+    do
+    {
         cout << "\n========================================" << endl;
         cout << "           KELOLA MENU" << endl;
         cout << "========================================" << endl;
@@ -61,114 +67,136 @@ void menuAdmin(Node*& root) {
         cout << "Pilih menu: ";
         cin >> pilihan;
         cin.ignore();
-        
-        switch (pilihan) {
-            case 1: {
-                string nama, kategori;
-                int harga, stok;
-                
-                cout << "\nNama Menu: ";
-                getline(cin, nama);
-                cout << "Kategori: ";
+
+        switch (pilihan)
+        {
+        case 1:
+        {
+            string nama, kategori;
+            int harga, stok;
+
+            cout << "\nNama Menu: ";
+            getline(cin, nama);
+            cout << "Kategori: ";
+            getline(cin, kategori);
+            cout << "Harga: ";
+            cin >> harga;
+            cout << "Stok: ";
+            cin >> stok;
+
+            Menu m = {nama, kategori, harga, stok};
+            if (simpanMenuDatabase(m))
+            {
+                root = tambahMenu(root, nama, kategori, harga, stok);
+                cout << "Menu berhasil ditambahkan!" << endl;
+            }
+            else
+            {
+                cout << "Gagal menambahkan menu!" << endl;
+            }
+            break;
+        }
+        case 2:
+            cout << "\n========================================" << endl;
+            cout << "         DAFTAR MENU (In-Order)" << endl;
+            cout << "========================================" << endl;
+            cout << left << setw(20) << "Nama"
+                 << setw(15) << "Kategori"
+                 << setw(15) << "Harga"
+                 << "Stok" << endl;
+            cout << "----------------------------------------" << endl;
+            tampilkanInOrder(root);
+            break;
+        case 3:
+        {
+            string nama;
+            cout << "\nMasukkan nama menu yang dicari: ";
+            getline(cin, nama);
+
+            Node *hasil = cariMenu(root, nama);
+            if (hasil != nullptr)
+            {
+                cout << "\nMenu ditemukan!" << endl;
+                cout << "Nama: " << hasil->data.nama << endl;
+                cout << "Kategori: " << hasil->data.kategori << endl;
+                cout << "Harga: Rp " << hasil->data.harga << endl;
+                cout << "Stok: " << hasil->data.stok << endl;
+            }
+            else
+            {
+                cout << "Menu tidak ditemukan!" << endl;
+            }
+            break;
+        }
+        case 4:
+        {
+            string nama, kategori;
+            int harga, stok;
+
+            cout << "\nMasukkan nama menu yang akan diupdate: ";
+            getline(cin, nama);
+
+            Node *node = cariMenu(root, nama);
+            if (node != nullptr)
+            {
+                cout << "Kategori baru: ";
                 getline(cin, kategori);
-                cout << "Harga: ";
+                cout << "Harga baru: ";
                 cin >> harga;
-                cout << "Stok: ";
+                cout << "Stok baru: ";
                 cin >> stok;
-                
-                Menu m = {nama, kategori, harga, stok};
-                if (simpanMenuDatabase(m)) {
-                    root = tambahMenu(root, nama, kategori, harga, stok);
-                    cout << "Menu berhasil ditambahkan!" << endl;
-                } else {
-                    cout << "Gagal menambahkan menu!" << endl;
+
+                node->data.kategori = kategori;
+                node->data.harga = harga;
+                node->data.stok = stok;
+
+                if (updateMenuDatabase(node->data))
+                {
+                    cout << "Menu berhasil diupdate!" << endl;
                 }
-                break;
-            }
-            case 2:
-                cout << "\n========================================" << endl;
-                cout << "         DAFTAR MENU (In-Order)" << endl;
-                cout << "========================================" << endl;
-                cout << left << setw(20) << "Nama" 
-                     << setw(15) << "Kategori"
-                     << setw(15) << "Harga"
-                     << "Stok" << endl;
-                cout << "----------------------------------------" << endl;
-                tampilkanInOrder(root);
-                break;
-            case 3: {
-                string nama;
-                cout << "\nMasukkan nama menu yang dicari: ";
-                getline(cin, nama);
-                
-                Node* hasil = cariMenu(root, nama);
-                if (hasil != nullptr) {
-                    cout << "\nMenu ditemukan!" << endl;
-                    cout << "Nama: " << hasil->data.nama << endl;
-                    cout << "Kategori: " << hasil->data.kategori << endl;
-                    cout << "Harga: Rp " << hasil->data.harga << endl;
-                    cout << "Stok: " << hasil->data.stok << endl;
-                } else {
-                    cout << "Menu tidak ditemukan!" << endl;
-                }                
-                break;
-            }
-            case 4: {
-                string nama, kategori;
-                int harga, stok;
-                
-                cout << "\nMasukkan nama menu yang akan diupdate: ";
-                getline(cin, nama);
-                
-                Node* node = cariMenu(root, nama);
-                if (node != nullptr) {
-                    cout << "Kategori baru: ";
-                    getline(cin, kategori);
-                    cout << "Harga baru: ";
-                    cin >> harga;
-                    cout << "Stok baru: ";
-                    cin >> stok;
-                    
-                    node->data.kategori = kategori;
-                    node->data.harga = harga;
-                    node->data.stok = stok;
-                    
-                    if (updateMenuDatabase(node->data)) {
-                        cout << "Menu berhasil diupdate!" << endl;
-                    } else {
-                        cout << "Gagal mengupdate menu di database!" << endl;
-                    }
-                } else {
-                    cout << "Menu tidak ditemukan!" << endl;
+                else
+                {
+                    cout << "Gagal mengupdate menu di database!" << endl;
                 }
-                break;
             }
-            case 5: {
-                string nama;
-                cout << "\nMasukkan nama menu yang akan dihapus: ";
-                getline(cin, nama);
-                
-                if (hapusMenuDatabase(nama)) {
-                    root = hapusMenu(root, nama);
-                    cout << "Menu berhasil dihapus!" << endl;
-                } else {
-                    cout << "Gagal menghapus menu!" << endl;
-                }
-                break;
+            else
+            {
+                cout << "Menu tidak ditemukan!" << endl;
             }
-            case 0:
-                break;
-            default:
-                cout << "Pilihan tidak valid!" << endl;
+            break;
+        }
+        case 5:
+        {
+            string nama;
+            cout << "\nMasukkan nama menu yang akan dihapus: ";
+            getline(cin, nama);
+
+            if (hapusMenuDatabase(nama))
+            {
+                root = hapusMenu(root, nama);
+                cout << "Menu berhasil dihapus!" << endl;
+            }
+            else
+            {
+                cout << "Gagal menghapus menu!" << endl;
+            }
+            break;
+        }
+        case 0:
+            break;
+        default:
+            cout << "Pilihan tidak valid!" << endl;
         }
     } while (pilihan != 0);
 }
 
-void menuKasir(Node* root) {
-    Item* keranjang = nullptr;
+void menuKasir(Node *root)
+{
+    Item *keranjang = nullptr;
     int pilihan;
-    
-    do {
+
+    do
+    {
         cout << "\n========================================" << endl;
         cout << "           KELOLA TRANSAKSI" << endl;
         cout << "========================================" << endl;
@@ -182,99 +210,124 @@ void menuKasir(Node* root) {
         cout << "Pilih menu: ";
         cin >> pilihan;
         cin.ignore();
-        
-        switch (pilihan) {
-            case 1:
-                cout << "\n========================================" << endl;
-                cout << "            DAFTAR MENU" << endl;
-                cout << "========================================" << endl;
-                cout << left << setw(20) << "Nama" 
-                     << setw(15) << "Kategori"
-                     << setw(15) << "Harga"
-                     << "Stok" << endl;
-                cout << "----------------------------------------" << endl;
-                tampilkanInOrder(root);                
-                break;
-            case 2: {
-                string nama;
-                int jumlah;
-                
-                cout << "\nNama menu: ";
-                getline(cin, nama);
-                
-                Node* menu = cariMenu(root, nama);
-                if (menu != nullptr) {
-                    if (menu->data.stok > 0) {
-                        cout << "Jumlah: ";
-                        cin >> jumlah;
-                        
-                        if (jumlah <= menu->data.stok) {
-                            tambahKeKeranjang(keranjang, nama, jumlah, menu->data.harga);
-                            menu->data.stok -= jumlah;
-                            cout << "Item berhasil ditambahkan ke keranjang!" << endl;
-                        } else {
-                            cout << "Stok tidak mencukupi! Stok tersedia: " 
-                                 << menu->data.stok << endl;
-                        }
-                    } else {
-                        cout << "Maaf, stok habis!" << endl;
+
+        switch (pilihan)
+        {
+        case 1:
+            cout << "\n========================================" << endl;
+            cout << "            DAFTAR MENU" << endl;
+            cout << "========================================" << endl;
+            cout << left << setw(20) << "Nama"
+                 << setw(15) << "Kategori"
+                 << setw(15) << "Harga"
+                 << "Stok" << endl;
+            cout << "----------------------------------------" << endl;
+            tampilkanInOrder(root);
+            break;
+        case 2:
+        {
+            string nama;
+            int jumlah;
+
+            cout << "\nNama menu: ";
+            getline(cin, nama);
+
+            Node *menu = cariMenu(root, nama);
+            if (menu != nullptr)
+            {
+                if (menu->data.stok > 0)
+                {
+                    cout << "Jumlah: ";
+                    cin >> jumlah;
+
+                    if (jumlah <= menu->data.stok)
+                    {
+                        tambahKeKeranjang(keranjang, nama, jumlah, menu->data.harga);
+                        menu->data.stok -= jumlah;
+                        cout << "Item berhasil ditambahkan ke keranjang!" << endl;
                     }
-                } else {
-                    cout << "Menu tidak ditemukan!" << endl;
+                    else
+                    {
+                        cout << "Stok tidak mencukupi! Stok tersedia: "
+                             << menu->data.stok << endl;
+                    }
                 }
-                break;
+                else
+                {
+                    cout << "Maaf, stok habis!" << endl;
+                }
             }
-            case 3:
-                tampilkanKeranjang(keranjang);
-                cout << "\nTotal: Rp " << hitungTotalBayar(keranjang) << endl;
-                break;
-            case 4: {
-                if (keranjang == nullptr) {
-                    cout << "Keranjang kosong!" << endl;
-                } else {
-                    int total = hitungTotalBayar(keranjang);
-                    int bayar;
-                    
-                    cetakStruk(keranjang, total);
-                    cout << "Masukkan jumlah bayar: Rp ";
-                    cin >> bayar;
-                    
-                    if (bayar >= total) {
-                        cout << "Kembalian: Rp " << (bayar - total) << endl;
-                        cout << "\nTransaksi berhasil!" << endl;
-                        
-                        // Update stok di database
-                        Item* temp = keranjang;
-                        while (temp != nullptr) {
-                            Node* menu = cariMenu(root, temp->nama);
-                            if (menu != nullptr) {
-                                updateMenuDatabase(menu->data);
-                            }
-                            temp = temp->next;
-                        }
-                        
-                        bersihkanKeranjang(keranjang);
-                    } else {
-                        cout << "Uang tidak cukup!" << endl;
-                    }
-                }
-                break;
+            else
+            {
+                cout << "Menu tidak ditemukan!" << endl;
             }
-            case 5:
-                // Kembalikan stok
-                Item* temp = keranjang;
-                while (temp != nullptr) {
-                    Node* menu = cariMenu(root, temp->nama);
-                    if (menu != nullptr) {
-                        menu->data.stok += temp->jumlah;
-                    }
-                    temp = temp->next;
-                }
-                bersihkanKeranjang(keranjang);
-                cout << "Transaksi dibatalkan!" << endl;
-                break;
+            break;
         }
-    } while (pilihan != 0);
-    
-    bersihkanKeranjang(keranjang);
-}
+        case 3:
+            tampilkanKeranjang(keranjang);
+            cout << "\nTotal: Rp " << hitungTotalBayar(keranjang) << endl;
+            break;
+        case 4:
+        {
+            if (keranjang == nullptr)
+            {
+                cout << "Keranjang kosong!" << endl;
+            }
+            else
+            {
+                int total = hitungTotalBayar(keranjang);
+                int bayar;
+
+                cetakStruk(keranjang, total);
+                cout << "Masukkan jumlah bayar: Rp ";
+                cin >> bayar;
+
+                if (bayar >= total)
+                {
+                    cout << "Kembalian: Rp " << (bayar - total) << endl;
+                    cout << "\nTransaksi berhasil!" << endl;
+
+                    // Update stok di database
+                    Item *temp = keranjang;
+                    while (temp != nullptr)
+                    {
+                        Node *menu = cariMenu(root, temp->nama);
+                        if (menu != nullptr)
+                        {
+                            updateMenuDatabase(menu->data);
+                        }
+                        temp = temp->next;
+                    }
+
+                    bersihkanKeranjang(keranjang);
+                }
+                else
+                {
+                    cout << "Uang tidak cukup!" << endl;
+                }
+            }
+            break;
+        }
+        case 5:
+            // Kembalikan stok
+            Item *temp = keranjang;
+            while (temp != nullptr)
+            {
+                Node *menu = cariMenu(root, temp->nama);
+                if (menu != nullptr)
+                {
+                    menu->data.stok += temp->jumlah;
+                }
+                temp = temp->next;
+            }
+            bersihkanKeranjang(keranjang);
+            cout << "Transaksi dibatalkan!" << endl;
+            break;
+        }
+        default:
+            cout << "Pilihan tidak valid!" << endl;
+        }
+        while (pilihan != 0);
+
+        bersihkanKeranjang(keranjang);
+    }
