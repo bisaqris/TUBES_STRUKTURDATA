@@ -1,6 +1,6 @@
-# Sistem Kasir Restoran
+# Sistem Kasir Kafe
 
-Aplikasi kasir restoran berbasis C++ dengan struktur data Binary Search Tree (BST) dan database SQLite untuk manajemen menu, transaksi, dan laporan penjualan, untuk Tugas Besar Mata Kuliah Struktur Data.
+Aplikasi kasir kafe berbasis C++ dengan struktur data Binary Search Tree (BST) dan database SQLite untuk manajemen menu, transaksi, dan laporan penjualan, untuk Tugas Besar Mata Kuliah Struktur Data.
 
 ## Daftar Isi
 
@@ -126,7 +126,7 @@ kasir.exe      # Windows
 ### Menu Utama
 ```
 ========================================
-        SISTEM KASIR RESTORAN
+        SISTEM KASIR Kafe
 ========================================
 1. Kelola Menu
 2. Kelola Transaksi
@@ -245,7 +245,7 @@ Login berhasil! Selamat datang, kasir!
 ### Menu Utama
 ```
 ========================================
-        SISTEM KASIR RESTORAN
+        SISTEM KASIR Kafe
 ========================================
 1. Kelola Menu
 2. Kelola Transaksi
