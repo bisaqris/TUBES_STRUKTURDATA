@@ -110,6 +110,5 @@ void menuLaporan();
 
 bool login();
 void clearScreen();
-void pause();
 
 #endif
