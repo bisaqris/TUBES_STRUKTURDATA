@@ -17,7 +17,7 @@ void menuUtama() {
     do {
         clearScreen();
         cout << "\n========================================" << endl;
-        cout << "        SISTEM KASIR RESTORAN" << endl;
+        cout << "        SISTEM KASIR KAFE" << endl;
         cout << "========================================" << endl;
         cout << "1. Kelola Menu" << endl;
         cout << "2. Kelola Transaksi" << endl;
