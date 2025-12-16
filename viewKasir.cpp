@@ -284,6 +284,8 @@ void menuKasir(Node* root) {
                 bersihkanKeranjang(keranjang);
                 cout << "Transaksi dibatalkan!" << endl;
                 break;
+            default:
+                cout << "Pilihan tidak valid!" << endl;    
         }
     } while (pilihan != 0);
     
