@@ -21,6 +21,7 @@ void menuUtama() {
         cout << "========================================" << endl;
         cout << "1. Kelola Menu" << endl;
         cout << "2. Kelola Transaksi" << endl;
+        cout << "3. Laporan Penjualan" << endl;
         cout << "0. Keluar" << endl;
         cout << "========================================" << endl;
         cout << "Pilih menu: ";
@@ -32,6 +33,9 @@ void menuUtama() {
                 break;
             case 2:
                 menuKasir(root);
+                break;
+            case 3:
+                menuLaporan();
                 break;
             case 0:
                 cout << "Terima kasih telah menggunakan sistem kasir!" << endl;
@@ -240,20 +244,27 @@ void menuKasir(Node* root) {
                     cin >> bayar;
                     
                     if (bayar >= total) {
-                        cout << "Kembalian: Rp " << (bayar - total) << endl;
-                        cout << "\nTransaksi berhasil!" << endl;
+                        int kembalian = bayar - total;
+                        cout << "Kembalian: Rp " << kembalian << endl;
                         
-                        // Update stok di database
-                        Item* temp = keranjang;
-                        while (temp != nullptr) {
-                            Node* menu = cariMenu(root, temp->nama);
-                            if (menu != nullptr) {
-                                updateMenuDatabase(menu->data);
+                        // Simpan transaksi ke database
+                        if (simpanTransaksi(keranjang, total, bayar, kembalian)) {
+                            cout << "\nTransaksi berhasil disimpan!" << endl;
+                            
+                            // Update stok di database
+                            Item* temp = keranjang;
+                            while (temp != nullptr) {
+                                Node* menu = cariMenu(root, temp->nama);
+                                if (menu != nullptr) {
+                                    updateMenuDatabase(menu->data);
+                                }
+                                temp = temp->next;
                             }
-                            temp = temp->next;
+                            
+                            bersihkanKeranjang(keranjang);
+                        } else {
+                            cout << "Gagal menyimpan transaksi!" << endl;
                         }
-                        
-                        bersihkanKeranjang(keranjang);
                     } else {
                         cout << "Uang tidak cukup!" << endl;
                     }
@@ -277,4 +288,136 @@ void menuKasir(Node* root) {
     } while (pilihan != 0);
     
     bersihkanKeranjang(keranjang);
+}
+
+void menuLaporan() {
+    int pilihan;
+    
+    do {
+        cout << "\n========================================" << endl;
+        cout << "          LAPORAN PENJUALAN" << endl;
+        cout << "========================================" << endl;
+        cout << "1. Ringkasan Penjualan" << endl;
+        cout << "2. Riwayat Transaksi" << endl;
+        cout << "3. Detail Transaksi" << endl;
+        cout << "4. Menu Terlaris" << endl;
+        cout << "0. Kembali" << endl;
+        cout << "========================================" << endl;
+        cout << "Pilih menu: ";
+        cin >> pilihan;
+        cin.ignore();
+        
+        switch (pilihan) {
+            case 1: {
+                int totalHariIni = hitungTotalPenjualanHariIni();
+                int totalBulanIni = hitungTotalPenjualanBulanIni();
+                
+                cout << "\n========================================" << endl;
+                cout << "       RINGKASAN PENJUALAN" << endl;
+                cout << "========================================" << endl;
+                cout << "Total Penjualan Hari Ini : Rp " << totalHariIni << endl;
+                cout << "Total Penjualan Bulan Ini: Rp " << totalBulanIni << endl;
+                cout << "========================================" << endl;
+                break;
+            }
+            case 2: {
+                vector<Transaksi> daftarTransaksi = ambilSemuaTransaksi();
+                
+                if (daftarTransaksi.empty()) {
+                    cout << "\nBelum ada transaksi!" << endl;
+                } else {
+                    // Masukkan data ke BST
+                    NodeTransaksi* rootTransaksi = nullptr;
+                    for (const auto& t : daftarTransaksi) {
+                        rootTransaksi = tambahTransaksi(rootTransaksi, t);
+                    }
+                    
+                    cout << "\n========================================" << endl;
+                    cout << "   RIWAYAT TRANSAKSI (Post-Order BST)" << endl;
+                    cout << "========================================" << endl;
+                    cout << left << setw(5) << "ID" 
+                         << setw(22) << "Tanggal"
+                         << setw(15) << "Total"
+                         << setw(15) << "Bayar"
+                         << "Kembali" << endl;
+                    cout << "----------------------------------------" << endl;
+
+                    tampilkanTransaksiPostOrder(rootTransaksi);
+                    
+                    cout << "========================================" << endl;
+                    
+                    hapusSemuaNodeTransaksi(rootTransaksi);
+                }
+                break;
+            }
+            case 3: {
+                int idTransaksi;
+                cout << "\nMasukkan ID Transaksi: ";
+                cin >> idTransaksi;
+                
+                vector<DetailTransaksi> detail = ambilDetailTransaksi(idTransaksi);
+                
+                if (detail.empty()) {
+                    cout << "Transaksi tidak ditemukan!" << endl;
+                } else {
+                    cout << "\n========================================" << endl;
+                    cout << "    DETAIL TRANSAKSI #" << idTransaksi << endl;
+                    cout << "========================================" << endl;
+                    cout << left << setw(20) << "Menu" 
+                         << setw(10) << "Qty"
+                         << setw(15) << "Harga"
+                         << "Subtotal" << endl;
+                    cout << "----------------------------------------" << endl;
+                    
+                    int grandTotal = 0;
+                    for (const auto& d : detail) {
+                        cout << left << setw(20) << d.namaMenu
+                             << setw(10) << d.jumlah
+                             << "Rp " << setw(12) << d.hargaSatuan
+                             << "Rp " << d.subtotal << endl;
+                        grandTotal += d.subtotal;
+                    }
+                    
+                    cout << "========================================" << endl;
+                    cout << "TOTAL: Rp " << grandTotal << endl;
+                    cout << "========================================" << endl;
+                }
+                break;
+            }
+            case 4: {
+                vector<pair<string, int>> menuTerlaris = getMenuTerlaris(10);
+                
+                if (menuTerlaris.empty()) {
+                    cout << "\nBelum ada data penjualan!" << endl;
+                } else {
+
+                    NodeMenuTerlaris* rootMenuTerlaris = nullptr;
+                    for (const auto& menu : menuTerlaris) {
+                        rootMenuTerlaris = tambahMenuTerlaris(rootMenuTerlaris, menu.first, menu.second);
+                    }
+                    
+                    cout << "\n========================================" << endl;
+                    cout << "     MENU TERLARIS (Pre-Order BST)" << endl;
+                    cout << "========================================" << endl;
+                    cout << left << setw(5) << "No" 
+                         << setw(25) << "Nama Menu"
+                         << "Terjual" << endl;
+                    cout << "----------------------------------------" << endl;
+                    
+                    int nomor = 1;
+                    tampilkanMenuTerlarisPreOrder(rootMenuTerlaris, nomor);
+                    
+                    cout << "========================================" << endl;
+
+                    hapusSemuaNodeMenuTerlaris(rootMenuTerlaris);
+                }
+                break;
+            }
+            case 0:
+                break;
+            default:
+                cout << "Pilihan tidak valid!" << endl;
+        }
+        
+    } while (pilihan != 0);
 }
