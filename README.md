@@ -1,6 +1,6 @@
 # Sistem Kasir Restoran
 
-Aplikasi kasir restoran berbasis C++ dengan struktur data Binary Search Tree (BST) dan database SQLite untuk manajemen menu, transaksi, dan laporan penjualan, untuk tugas besar mata kuliah struktur data.
+Aplikasi kasir restoran berbasis C++ dengan struktur data Binary Search Tree (BST) dan database SQLite untuk manajemen menu, transaksi, dan laporan penjualan, untuk Tugas Besar Mata Kuliah Struktur Data.
 
 ## Daftar Isi
 
