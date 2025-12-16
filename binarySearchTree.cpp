@@ -30,17 +30,6 @@ Node* tambahMenu(Node* root, const string& nama, const string& kategori,
     return root;
 }
 
-void tampilkanPreOrder(Node* root) {
-    if (root != nullptr) {
-        cout << left << setw(20) << root->data.nama 
-             << setw(15) << root->data.kategori
-             << "Rp " << setw(10) << root->data.harga
-             << "Stok: " << root->data.stok << endl;
-        tampilkanPreOrder(root->kiri);
-        tampilkanPreOrder(root->kanan);
-    }
-}
-
 void tampilkanInOrder(Node* root) {
     if (root != nullptr) {
         tampilkanInOrder(root->kiri);
@@ -49,17 +38,6 @@ void tampilkanInOrder(Node* root) {
              << "Rp " << setw(10) << root->data.harga
              << "Stok: " << root->data.stok << endl;
         tampilkanInOrder(root->kanan);
-    }
-}
-
-void tampilkanPostOrder(Node* root) {
-    if (root != nullptr) {
-        tampilkanPostOrder(root->kiri);
-        tampilkanPostOrder(root->kanan);
-        cout << left << setw(20) << root->data.nama 
-             << setw(15) << root->data.kategori
-             << "Rp " << setw(10) << root->data.harga
-             << "Stok: " << root->data.stok << endl;
     }
 }
 
@@ -207,6 +185,17 @@ void tampilkanMenuTerlarisPostOrder(NodeMenuTerlaris* root, int& nomor) {
         cout << left << setw(5) << nomor++
              << setw(25) << root->namaMenu
              << root->jumlahTerjual << " porsi" << endl;
+    }
+}
+
+void tampilkanMenuTerlarisPreOrder(NodeMenuTerlaris* root, int& nomor) {
+    if (root != nullptr) {
+        cout << left << setw(5) << nomor++
+             << setw(25) << root->namaMenu
+             << root->jumlahTerjual << " porsi" << endl;
+        
+        tampilkanMenuTerlarisPreOrder(root->kiri, nomor);
+        tampilkanMenuTerlarisPreOrder(root->kanan, nomor);
     }
 }
 
