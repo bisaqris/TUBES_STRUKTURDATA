@@ -228,7 +228,7 @@ CREATE TABLE detail_transaksi (
 );
 ```
 
-## 📸 Screenshot
+## Output Overview
 
 ### Login Screen
 ```
