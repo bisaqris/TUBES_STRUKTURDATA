@@ -341,13 +341,11 @@ void menuLaporan() {
                          << setw(15) << "Bayar"
                          << "Kembali" << endl;
                     cout << "----------------------------------------" << endl;
-                    
-                    // Tampilkan menggunakan Post-Order Traversal
+
                     tampilkanTransaksiPostOrder(rootTransaksi);
                     
                     cout << "========================================" << endl;
                     
-                    // Hapus BST setelah digunakan
                     hapusSemuaNodeTransaksi(rootTransaksi);
                 }
                 break;
@@ -399,7 +397,7 @@ void menuLaporan() {
                     }
                     
                     cout << "\n========================================" << endl;
-                    cout << "     MENU TERLARIS (Post-Order BST)" << endl;
+                    cout << "     MENU TERLARIS (Pre-Order BST)" << endl;
                     cout << "========================================" << endl;
                     cout << left << setw(5) << "No" 
                          << setw(25) << "Nama Menu"
@@ -407,7 +405,7 @@ void menuLaporan() {
                     cout << "----------------------------------------" << endl;
                     
                     int nomor = 1;
-                    tampilkanMenuTerlarisPostOrder(rootMenuTerlaris, nomor);
+                    tampilkanMenuTerlarisPreOrder(rootMenuTerlaris, nomor);
                     
                     cout << "========================================" << endl;
 

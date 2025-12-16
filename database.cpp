@@ -53,7 +53,7 @@ bool initializeDatabase() {
         "username TEXT NOT NULL UNIQUE,"
         "password TEXT NOT NULL,"
         "role TEXT DEFAULT 'kasir',"
-        "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+        "created_at DATETIME DEFAULT (datetime('now', '+7 hours'))"
         ");";
     
     int rc = sqlite3_exec(db, sqlUsers, nullptr, nullptr, &errMsg);
@@ -70,8 +70,8 @@ bool initializeDatabase() {
         "kategori TEXT NOT NULL,"
         "harga INTEGER NOT NULL,"
         "stok INTEGER NOT NULL DEFAULT 0,"
-        "created_at DATETIME DEFAULT CURRENT_TIMESTAMP,"
-        "updated_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+        "created_at DATETIME DEFAULT (datetime('now', '+7 hours')),"
+        "updated_at DATETIME DEFAULT (datetime('now', '+7 hours'))"
         ");";
     
     rc = sqlite3_exec(db, sqlMenu, nullptr, nullptr, &errMsg);
@@ -85,7 +85,7 @@ bool initializeDatabase() {
     const char* sqlTransaksi = 
         "CREATE TABLE IF NOT EXISTS transaksi ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "tanggal DATETIME DEFAULT CURRENT_TIMESTAMP,"
+        "tanggal DATETIME DEFAULT (datetime('now', '+7 hours')),"
         "total_bayar INTEGER NOT NULL,"
         "uang_diterima INTEGER NOT NULL,"
         "kembalian INTEGER NOT NULL"
@@ -217,7 +217,7 @@ bool updateMenuDatabase(const Menu& data) {
     }
     
     sqlite3_stmt* stmt;
-    const char* sql = "UPDATE menu SET kategori=?, harga=?, stok=?, updated_at=CURRENT_TIMESTAMP WHERE nama=?;";
+    const char* sql = "UPDATE menu SET kategori=?, harga=?, stok=?, updated_at=datetime('now', '+7 hours') WHERE nama=?;";
     
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
@@ -437,7 +437,7 @@ int hitungTotalPenjualanHariIni() {
     sqlite3_stmt* stmt;
     const char* sql = 
         "SELECT COALESCE(SUM(total_bayar), 0) FROM transaksi "
-        "WHERE DATE(tanggal) = DATE('now');";
+        "WHERE DATE(tanggal) = DATE(datetime('now', '+7 hours'));";
     
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
@@ -461,7 +461,7 @@ int hitungTotalPenjualanBulanIni() {
     sqlite3_stmt* stmt;
     const char* sql = 
         "SELECT COALESCE(SUM(total_bayar), 0) FROM transaksi "
-        "WHERE strftime('%Y-%m', tanggal) = strftime('%Y-%m', 'now');";
+        "WHERE strftime('%Y-%m', tanggal) = strftime('%Y-%m', datetime('now', '+7 hours'));";
     
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {

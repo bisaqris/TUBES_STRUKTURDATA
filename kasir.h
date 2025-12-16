@@ -78,7 +78,6 @@ vector<pair<string, int>> getMenuTerlaris(int limit = 5);
 
 Node* buatNode(const Menu& data);
 Node* tambahMenu(Node* root, const string& nama, const string& kategori, int harga, int stok);
-void tampilkanPreOrder(Node* root);
 void tampilkanInOrder(Node* root);
 void tampilkanPostOrder(Node* root);
 Node* cariMenu(Node* root, const string& nama);
@@ -95,6 +94,7 @@ void hapusSemuaNodeTransaksi(NodeTransaksi* root);
 NodeMenuTerlaris* buatNodeMenuTerlaris(const string& nama, int jumlah);
 NodeMenuTerlaris* tambahMenuTerlaris(NodeMenuTerlaris* root, const string& nama, int jumlah);
 void tampilkanMenuTerlarisPostOrder(NodeMenuTerlaris* root, int& nomor);
+void tampilkanMenuTerlarisPreOrder(NodeMenuTerlaris* root, int& nomor);
 void hapusSemuaNodeMenuTerlaris(NodeMenuTerlaris* root);
 
 void tambahKeKeranjang(Item*& keranjang, const string& namaMenu, int jumlah, int hargaSatuan);
