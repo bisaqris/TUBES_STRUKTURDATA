@@ -177,17 +177,6 @@ NodeMenuTerlaris* tambahMenuTerlaris(NodeMenuTerlaris* root, const string& nama,
     return root;
 }
 
-void tampilkanMenuTerlarisPostOrder(NodeMenuTerlaris* root, int& nomor) {
-    if (root != nullptr) {
-        tampilkanMenuTerlarisPostOrder(root->kiri, nomor);
-        tampilkanMenuTerlarisPostOrder(root->kanan, nomor);
-        
-        cout << left << setw(5) << nomor++
-             << setw(25) << root->namaMenu
-             << root->jumlahTerjual << " porsi" << endl;
-    }
-}
-
 void tampilkanMenuTerlarisPreOrder(NodeMenuTerlaris* root, int& nomor) {
     if (root != nullptr) {
         cout << left << setw(5) << nomor++
