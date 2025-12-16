@@ -126,3 +126,94 @@ void hapusSemuaNode(Node* root) {
         delete root;
     }
 }
+
+//POST-ORDER
+NodeTransaksi* buatNodeTransaksi(const Transaksi& data) {
+    NodeTransaksi* nodeBaru = new NodeTransaksi;
+    nodeBaru->data = data;
+    nodeBaru->kiri = nullptr;
+    nodeBaru->kanan = nullptr;
+    return nodeBaru;
+}
+
+NodeTransaksi* tambahTransaksi(NodeTransaksi* root, const Transaksi& data) {
+    if (root == nullptr) {
+        return buatNodeTransaksi(data);
+    }
+    if (data.id > root->data.id) {
+        root->kiri = tambahTransaksi(root->kiri, data);
+    } else if (data.id < root->data.id) {
+        root->kanan = tambahTransaksi(root->kanan, data);
+    }
+    
+    return root;
+}
+
+void tampilkanTransaksiPostOrder(NodeTransaksi* root) {
+    if (root != nullptr) {
+        tampilkanTransaksiPostOrder(root->kiri);
+        tampilkanTransaksiPostOrder(root->kanan);
+
+        cout << left << setw(5) << root->data.id
+             << setw(22) << root->data.tanggal
+             << "Rp " << setw(12) << root->data.totalBayar
+             << "Rp " << setw(12) << root->data.uangDiterima
+             << "Rp " << root->data.kembalian << endl;
+    }
+}
+
+void hapusSemuaNodeTransaksi(NodeTransaksi* root) {
+    if (root != nullptr) {
+        hapusSemuaNodeTransaksi(root->kiri);
+        hapusSemuaNodeTransaksi(root->kanan);
+        delete root;
+    }
+}
+
+//postorder
+NodeMenuTerlaris* buatNodeMenuTerlaris(const string& nama, int jumlah) {
+    NodeMenuTerlaris* nodeBaru = new NodeMenuTerlaris;
+    nodeBaru->namaMenu = nama;
+    nodeBaru->jumlahTerjual = jumlah;
+    nodeBaru->kiri = nullptr;
+    nodeBaru->kanan = nullptr;
+    return nodeBaru;
+}
+
+NodeMenuTerlaris* tambahMenuTerlaris(NodeMenuTerlaris* root, const string& nama, int jumlah) {
+    if (root == nullptr) {
+        return buatNodeMenuTerlaris(nama, jumlah);
+    }
+    if (jumlah > root->jumlahTerjual) {
+        root->kiri = tambahMenuTerlaris(root->kiri, nama, jumlah);
+    } else if (jumlah < root->jumlahTerjual) {
+        root->kanan = tambahMenuTerlaris(root->kanan, nama, jumlah);
+    } else {
+        if (nama < root->namaMenu) {
+            root->kiri = tambahMenuTerlaris(root->kiri, nama, jumlah);
+        } else {
+            root->kanan = tambahMenuTerlaris(root->kanan, nama, jumlah);
+        }
+    }
+    
+    return root;
+}
+
+void tampilkanMenuTerlarisPostOrder(NodeMenuTerlaris* root, int& nomor) {
+    if (root != nullptr) {
+        tampilkanMenuTerlarisPostOrder(root->kiri, nomor);
+        tampilkanMenuTerlarisPostOrder(root->kanan, nomor);
+        
+        cout << left << setw(5) << nomor++
+             << setw(25) << root->namaMenu
+             << root->jumlahTerjual << " porsi" << endl;
+    }
+}
+
+void hapusSemuaNodeMenuTerlaris(NodeMenuTerlaris* root) {
+    if (root != nullptr) {
+        hapusSemuaNodeMenuTerlaris(root->kiri);
+        hapusSemuaNodeMenuTerlaris(root->kanan);
+        delete root;
+    }
+}
